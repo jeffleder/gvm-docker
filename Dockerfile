@@ -6,9 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     gvmd_version='v9.0.1' \
     gsa_version='v9.0.1' \
     gvm_tools_version='v2.1.0' \
-    openvas_smb='v1.0.5' \
-    open_scanner_protocol_daemon='v2.0.1' \
-    ospd_openvas='v1.0.1' \
+    openvas_smb_version='v1.0.5' \
+    open_scanner_protocol_daemon_version='v2.0.1' \
+    ospd_openvas_version='v1.0.1' \
     python_gvm_version='v1.5.0' \
     NODE_OPTIONS=--max_old_space_size=8192
 RUN echo '---------------------------------------------------------------------------------------------' && \
@@ -99,8 +99,8 @@ RUN echo '----------------------------------------------------------------------
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing OpenVAS Scanner smb module' && \
     cd /build && \
-    wget -q https://github.com/greenbone/openvas-smb/archive/$openvas_smb.tar.gz && \
-    tar -zxf $openvas_smb.tar.gz --strip-components=1 && \
+    wget -q https://github.com/greenbone/openvas-smb/archive/$openvas_smb_version.tar.gz && \
+    tar -zxf $openvas_smb_version.tar.gz --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
     make >/dev/null && \
     make install >/dev/null && \
@@ -138,29 +138,49 @@ RUN echo '----------------------------------------------------------------------
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing Open Scanner Protocol daemon (OSPd)' && \
     cd /build && \
-    wget -q https://github.com/greenbone/ospd/archive/$open_scanner_protocol_daemon.tar.gz && \
-    tar -zxf $open_scanner_protocol_daemon.tar.gz --strip-components=1 && \
+    wget -q https://github.com/greenbone/ospd/archive/$open_scanner_protocol_daemon_version.tar.gz && \
+    tar -zxf $open_scanner_protocol_daemon_version.tar.gz --strip-components=1 && \
     python3 setup.py install && \
     rm -rf *
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing Open Scanner Protocol for OpenVAS' && \
     cd /build && \
-    wget -q https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas.tar.gz && \
-    tar -zxf $ospd_openvas.tar.gz --strip-components=1 && \
+    wget -q https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas_version.tar.gz && \
+    tar -zxf $ospd_openvas_version.tar.gz --strip-components=1 && \
     python3 setup.py install && \
     rm -rf *
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing GVM-Tools' && \
     pip3 install gvm-tools
-RUN echo '---------------------------------------------------------------------------------------------' && \	
+RUN echo '---------------------------------------------------------------------------------------------' && \    
+    echo 'Creating database and dba' && \
+    su -c 'createuser -DRS gvm' postgres >/dev/null && \
+    su -c 'createdb -O gvm gvmd' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="create role dba with superuser noinherit;"' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="grant dba to gvm;"' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null
+
+RUN echo '---------------------------------------------------------------------------------------------' && \   
+    echo 'Creating gvm user'
+    useradd --home-dir /usr/local/share/gvm gvm
+    if [ ! -d /usr/local/var/lib/gvm/cert-data ];then mkdir -p /usr/local/var/lib/gvm/cert-data;fi
+    chown gvm:gvm -R /usr/local/share/gvm
+    chown gvm:gvm -R /usr/local/share/openvas
+    chown gvm:gvm -R /usr/local/var/lib/gvm
+    chown gvm:gvm -R /usr/local/var/lib/openvas
+    chown gvm:gvm -R /usr/local/var/log/gvm
+    chown gvm:gvm -R /usr/local/var/run
+    chmod 770 -R /usr/local/var/lib/gvm
+    chmod 770 -R /usr/local/var/lib/openvas
+RUN echo '---------------------------------------------------------------------------------------------' && \    
     echo 'Updating NVTs' && \
-    if greenbone-nvt-sync &>/dev/null;then echo 'nvt data synced via rsync';else echo 'syncing nvt data via curl';greenbone-nvt-sync --curl &>/dev/null;fi;
+    su -c 'if greenbone-nvt-sync &>/dev/null;then echo "nvt data synced via rsync";else echo "syncing nvt data via curl";greenbone-nvt-sync --curl &>/dev/null;fi;' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Updating SCAP data' && \
-    if greenbone-scapdata-sync &>/dev/null;then echo 'scap data synced via rsync';else echo 'syncing scap data via curl';greenbone-scapdata-sync --curl &>/dev/null;fi;
+    su -c 'if greenbone-scapdata-sync &>/dev/null;then echo "scap data synced via rsync";else echo "syncing scap data via curl";greenbone-scapdata-sync --curl &>/dev/null;fi;' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Updating CERT data' && \
-    if greenbone-certdata-sync &>/dev/null;then echo 'cert data synced via rsync';else echo 'syncing cert data via curl';greenbone-certdata-sync --curl &>/dev/null;fi;
+    su -c 'if greenbone-certdata-sync &>/dev/null;then echo "cert data synced via rsync";else echo "syncing cert data via curl";greenbone-certdata-sync --curl &>/dev/null;fi;' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Ensuring all libraries are linked and adding ospd directory' && \
     ldconfig && \

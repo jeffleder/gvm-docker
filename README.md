@@ -1,8 +1,6 @@
-# gvm-docker
-GVM11 (OpenVAS) Docker Image
-
-# Note
-This is a simplified version of https://github.com/immauss/openvas intended for one-off scans
+# GVM-Docker
+This is a GVM11 (OpenVAS) Docker Image intended for one-off scans.
+Inspiration for this repo comes from: https://github.com/immauss/openvas
 
 # Docker Hub
 https://hub.docker.com/repository/docker/jeffleder/gvm-docker
