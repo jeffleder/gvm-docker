@@ -4,9 +4,8 @@ USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 echo 'Setting up redis'
 if [ ! -d '/run/redis' ];then mkdir /run/redis;fi;
-rm /run/redis/redis.sock &>/dev/null
 if [ -S /run/redis/redis.sock ];then rm /run/redis/redis.sock;fi;
-redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 --timeout 0 --databases 128 --maxclients 512 --daemonize yes --port 6379 --bind 127.0.0.1
+redis-server --unixsocket /run/redis/redis.sock --unixsocketperm 700 --timeout 0 --databases 128 --maxclients 512 --daemonize yes --port 6379 --bind 0.0.0.0
 echo 'Waiting for redis socket'
 while [ ! -S /run/redis/redis.sock ];do sleep 1;done;
 echo 'Waiting for redis to respond'
