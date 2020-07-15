@@ -159,18 +159,17 @@ RUN echo '----------------------------------------------------------------------
     su -c 'psql --dbname=gvmd --command="create role dba with superuser noinherit;"' postgres >/dev/null && \
     su -c 'psql --dbname=gvmd --command="grant dba to gvm;"' postgres >/dev/null && \
     su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null
-
 RUN echo '---------------------------------------------------------------------------------------------' && \   
-    echo 'Creating gvm user'
-    useradd --home-dir /usr/local/share/gvm gvm
-    if [ ! -d /usr/local/var/lib/gvm/cert-data ];then mkdir -p /usr/local/var/lib/gvm/cert-data;fi
-    chown gvm:gvm -R /usr/local/share/gvm
-    chown gvm:gvm -R /usr/local/share/openvas
-    chown gvm:gvm -R /usr/local/var/lib/gvm
-    chown gvm:gvm -R /usr/local/var/lib/openvas
-    chown gvm:gvm -R /usr/local/var/log/gvm
-    chown gvm:gvm -R /usr/local/var/run
-    chmod 770 -R /usr/local/var/lib/gvm
+    echo 'Creating gvm user' && \
+    useradd --home-dir /usr/local/share/gvm gvm && \
+    if [ ! -d /usr/local/var/lib/gvm/cert-data ];then mkdir -p /usr/local/var/lib/gvm/cert-data;fi && \
+    chown gvm:gvm -R /usr/local/share/gvm && \
+    chown gvm:gvm -R /usr/local/share/openvas && \
+    chown gvm:gvm -R /usr/local/var/lib/gvm && \
+    chown gvm:gvm -R /usr/local/var/lib/openvas && \
+    chown gvm:gvm -R /usr/local/var/log/gvm && \
+    chown gvm:gvm -R /usr/local/var/run && \
+    chmod 770 -R /usr/local/var/lib/gvm && \
     chmod 770 -R /usr/local/var/lib/openvas
 RUN echo '---------------------------------------------------------------------------------------------' && \    
     echo 'Updating NVTs' && \
