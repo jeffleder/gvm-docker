@@ -10,12 +10,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
     open_scanner_protocol_daemon='v2.0.1' \
     ospd_openvas='v1.0.1' \
     python_gvm_version='v1.5.0' \
-	NODE_OPTIONS=--max_old_space_size=8192
+    NODE_OPTIONS=--max_old_space_size=8192
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing standard dependencies' && \
     apt-get -y -qq update >/dev/null && \
     apt-get install -y -qq --no-install-recommends \
-	bison \
+    bison \
     build-essential \
     ca-certificates \
     cmake \
@@ -71,9 +71,9 @@ RUN echo '----------------------------------------------------------------------
     wapiti \
     wget \
     whiptail \
-	xml-twig-tools \
+    xml-twig-tools \
     xsltproc \
-	>/dev/null
+    >/dev/null
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing node.js' && \
     curl -sL https://deb.nodesource.com/setup_12.x|bash - >/dev/null && \
@@ -83,7 +83,7 @@ RUN echo '----------------------------------------------------------------------
     curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg|apt-key add - >/dev/null && \
     echo 'deb https://dl.yarnpkg.com/debian/ stable main'|tee /etc/apt/sources.list.d/yarn.list >/dev/null && \
     apt-get -y -qq update >/dev/null && \
-	apt-get -y -qq install yarn >/dev/null
+    apt-get -y -qq install yarn >/dev/null
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Creating build directory' && \
     mkdir /build
@@ -92,7 +92,7 @@ RUN echo '----------------------------------------------------------------------
     cd /build && \
     wget -q https://github.com/greenbone/gvm-libs/archive/$gvm_libs_version.tar.gz && \
     tar -zxf $gvm_libs_version.tar.gz --strip-components=1 && \
-	cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
+    cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
     make >/dev/null && \
     make install >/dev/null && \
     rm -rf *
@@ -153,14 +153,14 @@ RUN echo '----------------------------------------------------------------------
     echo 'Installing GVM-Tools' && \
     pip3 install gvm-tools
 RUN echo '---------------------------------------------------------------------------------------------' && \	
-	echo 'Updating NVTs' && \
-	if greenbone-nvt-sync &>/dev/null;then echo 'nvt data synced via rsync';else echo 'syncing nvt data via curl';greenbone-nvt-sync --curl &>/dev/null;fi;
+    echo 'Updating NVTs' && \
+    if greenbone-nvt-sync &>/dev/null;then echo 'nvt data synced via rsync';else echo 'syncing nvt data via curl';greenbone-nvt-sync --curl &>/dev/null;fi;
 RUN echo '---------------------------------------------------------------------------------------------' && \
-	echo 'Updating SCAP data' && \
-	if greenbone-scapdata-sync &>/dev/null;then echo 'scap data synced via rsync';else echo 'syncing scap data via curl';greenbone-scapdata-sync --curl &>/dev/null;fi;
+    echo 'Updating SCAP data' && \
+    if greenbone-scapdata-sync &>/dev/null;then echo 'scap data synced via rsync';else echo 'syncing scap data via curl';greenbone-scapdata-sync --curl &>/dev/null;fi;
 RUN echo '---------------------------------------------------------------------------------------------' && \
-	echo 'Updating CERT data' && \
-	if greenbone-certdata-sync &>/dev/null;then echo 'cert data synced via rsync';else echo 'syncing cert data via curl';greenbone-certdata-sync --curl &>/dev/null;fi;
+    echo 'Updating CERT data' && \
+    if greenbone-certdata-sync &>/dev/null;then echo 'cert data synced via rsync';else echo 'syncing cert data via curl';greenbone-certdata-sync --curl &>/dev/null;fi;
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Ensuring all libraries are linked and adding ospd directory' && \
     ldconfig && \
