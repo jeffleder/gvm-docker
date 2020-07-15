@@ -154,11 +154,13 @@ RUN echo '----------------------------------------------------------------------
     pip3 install gvm-tools
 RUN echo '---------------------------------------------------------------------------------------------' && \    
     echo 'Creating database and dba' && \
+	/usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main start && \
     su -c 'createuser -DRS gvm' postgres >/dev/null && \
     su -c 'createdb -O gvm gvmd' postgres >/dev/null && \
     su -c 'psql --dbname=gvmd --command="create role dba with superuser noinherit;"' postgres >/dev/null && \
     su -c 'psql --dbname=gvmd --command="grant dba to gvm;"' postgres >/dev/null && \
-    su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null
+    su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null && \
+	/usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main stop
 RUN echo '---------------------------------------------------------------------------------------------' && \   
     echo 'Creating gvm user' && \
     useradd --home-dir /usr/local/share/gvm gvm && \
