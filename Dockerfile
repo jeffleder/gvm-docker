@@ -152,16 +152,7 @@ RUN echo '----------------------------------------------------------------------
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Installing GVM-Tools' && \
     pip3 install gvm-tools
-RUN echo '---------------------------------------------------------------------------------------------' && \    
-    echo 'Creating database and dba' && \
-	/usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main start && \
-    su -c 'createuser -DRS gvm' postgres >/dev/null && \
-    su -c 'createdb -O gvm gvmd' postgres >/dev/null && \
-    su -c 'psql --dbname=gvmd --command="create role dba with superuser noinherit;"' postgres >/dev/null && \
-    su -c 'psql --dbname=gvmd --command="grant dba to gvm;"' postgres >/dev/null && \
-    su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null && \
-	/usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main stop
-RUN echo '---------------------------------------------------------------------------------------------' && \   
+RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Creating gvm user' && \
     useradd --home-dir /usr/local/share/gvm gvm && \
     if [ ! -d /usr/local/var/lib/gvm/cert-data ];then mkdir -p /usr/local/var/lib/gvm/cert-data;fi && \
@@ -173,7 +164,16 @@ RUN echo '----------------------------------------------------------------------
     chown gvm:gvm -R /usr/local/var/run && \
     chmod 770 -R /usr/local/var/lib/gvm && \
     chmod 770 -R /usr/local/var/lib/openvas
-RUN echo '---------------------------------------------------------------------------------------------' && \    
+RUN echo '---------------------------------------------------------------------------------------------' && \
+    echo 'Creating database and dba' && \
+	/usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main start && \
+    su -c 'createuser -DRS gvm' postgres >/dev/null && \
+    su -c 'createdb -O gvm gvmd' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="create role dba with superuser noinherit;"' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="grant dba to gvm;"' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null && \
+	/usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main stop
+RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Updating NVTs' && \
     su -c 'if greenbone-nvt-sync &>/dev/null;then echo "nvt data synced via rsync";else echo "syncing nvt data via curl";greenbone-nvt-sync --curl &>/dev/null;fi;' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
