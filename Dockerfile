@@ -153,10 +153,10 @@ RUN echo '----------------------------------------------------------------------
     pip3 install gvm-tools
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Performing initial maintenance tasks' && \
-	echo '--> Creating redis run directory' && \
-	mkdir /run/redis && \
+    echo '--> Creating redis run directory' && \
+    mkdir /run/redis && \
     echo '--> Creating data folder' && \
-	mkdir /data && \
+    mkdir /data && \
     echo '--> Linking database folder' && \
     mv /var/lib/postgresql/10/main /data/database && \
     ln -s /data/database /var/lib/postgresql/10/main && \
@@ -195,13 +195,13 @@ RUN echo '----------------------------------------------------------------------
     /usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main stop
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Updating NVTs' && \
-    su -c 'if greenbone-nvt-sync &>/dev/null;then echo "nvt data synced via rsync";else echo "syncing nvt data via curl";greenbone-nvt-sync --curl &>/dev/null;fi;' gvm
+    su -c 'greenbone-nvt-sync' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Updating SCAP data' && \
-    su -c 'if greenbone-scapdata-sync &>/dev/null;then echo "scap data synced via rsync";else echo "syncing scap data via curl";greenbone-scapdata-sync --curl &>/dev/null;fi;' gvm
+    su -c 'greenbone-scapdata-sync' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Updating CERT data' && \
-    su -c 'if greenbone-certdata-sync &>/dev/null;then echo "cert data synced via rsync";else echo "syncing cert data via curl";greenbone-certdata-sync --curl &>/dev/null;fi;' gvm
+    su -c 'greenbone-certdata-sync' gvm
 RUN echo '---------------------------------------------------------------------------------------------' && \
     echo 'Ensuring all libraries are linked and adding ospd directory' && \
     ldconfig && \
