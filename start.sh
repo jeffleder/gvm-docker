@@ -10,8 +10,10 @@ while [ "$(redis-cli -s /run/redis/redis.sock ping)" != 'PONG' ];do echo '--> Wa
 echo 'Starting PostgreSQL'
 /usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main start
 echo 'Starting OSPd'
-if [ -f /var/run/ospd.pid ];then echo '--> Removing stale OSPd pid file';rm /var/run/ospd.pid;fi;
-if [ -S /tmp/ospd.sock ];then echo '--> Removing stale OSPd socket';rm /tmp/ospd.sock;fi;
+if [ -f /var/run/ospd.pid ];then echo '--> Removing stale /var/run/OSPd pid file';rm /var/run/ospd.pid;fi;
+if [ -f /run/ospd.pid ];then echo '--> Removing stale /run/OSPd pid file';rm /run/ospd.pid;fi;
+if [ -S /tmp/ospd.sock ];then echo '--> Removing stale /tmp/ospd.sock file';rm /tmp/ospd.sock;fi;
+if [ -L /run/openvassd.sock ];then echo '--> Removing stale /run/openvassd.sock file';rm /run/openvassd.sock;fi;
 ospd-openvas --log-file /usr/local/var/log/gvm/ospd-openvas.log --unix-socket /tmp/ospd.sock --log-level INFO
 while [ ! -S /tmp/ospd.sock ];do echo '--> Waiting for OSPd socket';sleep 1;done;
 if [ ! -L /var/run/openvassd.sock ];then echo '--> Fixing OSPd socket link';rm -f /var/run/openvassd.sock;ln -s /tmp/ospd.sock /var/run/openvassd.sock;fi;
