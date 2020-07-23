@@ -43,6 +43,8 @@ RUN echo 'Installing standard dependencies' && \
     libsnmp-dev \
     libssh-gcrypt-dev \
     libxml2-dev \
+    libxslt1.1 \
+    libxslt1-dev \
     make \
     nano \
     nmap \
@@ -62,6 +64,7 @@ RUN echo 'Installing standard dependencies' && \
     uuid-dev \
     xml-twig-tools \
     xmltoman \
+    xsltproc \
     zlib1g-dev \
     >/dev/null
 RUN echo 'Installing yarn' && \
@@ -153,9 +156,9 @@ RUN echo 'Syncing and importing feeds' && \
     /usr/bin/pg_ctlcluster --skip-systemctl-redirect 12 main start && \
     echo '--> Starting OSPd' && \
     ospd-openvas --pid-file /opt/gvm/var/run/ospd-openvas.pid --log-file /opt/gvm/var/log/gvm/ospd-openvas.log --lock-file-dir /opt/gvm/var/run -u /opt/gvm/var/run/ospd.sock && \
-	echo '--> Starting GVMd' && \
+    echo '--> Starting GVMd' && \
     gvmd --osp-vt-update=/opt/gvm/var/run/ospd.sock && \
-	echo '--> Syncing NVTs' && \
+    echo '--> Syncing NVTs' && \
     sed -i 's/if \[ \"`id -u`\" -eq \"0\" \]/if [ 1 -eq 2 ]/' /opt/gvm/bin/greenbone-nvt-sync && \
     greenbone-nvt-sync --curl >/dev/null || true && \
     sleep 300 && \
@@ -179,8 +182,8 @@ RUN echo 'Syncing and importing feeds' && \
     sleep 300 && \
     echo '--> Loading NVTs into redis' && \
     openvas --update-vt-info || true && \
-	echo '--> Modifying "OpenVAS Default" scanner-host' && \
-	gvmd --modify-scanner=08b69003-5fc2-4037-a479-93b440211c73 --scanner-host=/opt/gvm/var/run/ospd.sock && \
+    echo '--> Modifying "OpenVAS Default" scanner-host' && \
+    gvmd --modify-scanner=08b69003-5fc2-4037-a479-93b440211c73 --scanner-host=/opt/gvm/var/run/ospd.sock && \
     echo '--> Stopping Redis' && \
     redis-cli -s /run/redis-openvas/redis.sock shutdown && \
     echo '--> Stopping PostgreSQL' && \
