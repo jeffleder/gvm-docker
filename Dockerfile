@@ -1,211 +1,189 @@
-FROM ubuntu:18.04
-ENV DEBIAN_FRONTEND=noninteractive \
+FROM ubuntu:20.04
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/gvm/bin:/opt/gvm/sbin:/opt/gvm/.local/bin" \
+    DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
+    NODE_OPTIONS=--max_old_space_size=8192 \
+    PKG_CONFIG_PATH=/opt/gvm/lib/pkgconfig:$PKG_CONFIG_PATH \
+    PYTHONPATH=/opt/gvm/lib/python3.8/site-packages \
     gvm_libs_version='v11.0.1' \
-    openvas_scanner_version='v7.0.1' \
-    gvmd_version='v9.0.1' \
-    gsa_version='v9.0.1' \
-    gvm_tools_version='v2.1.0' \
     openvas_smb_version='v1.0.5' \
-    open_scanner_protocol_daemon_version='v2.0.1' \
-    ospd_openvas_version='v1.0.1' \
-    python_gvm_version='v1.5.0' \
-    NODE_OPTIONS=--max_old_space_size=8192
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing standard dependencies' && \
+    gvmd_version='v9.0.1' \
+    openvas_scanner_version='v7.0.1' \
+    gsa_version='v9.0.1' \
+    ospd_version='v2.0.1' \
+    ospd_openvas_version='v1.0.1'
+RUN echo 'Installing standard dependencies' && \
     apt-get -y -qq update >/dev/null && \
-    apt-get install -y -qq --no-install-recommends \
+    apt-get -y -qq --no-install-recommends install \
     bison \
-    build-essential \
-    ca-certificates \
+    clang-format \
     cmake \
     curl \
+    doxygen \
+    flex \
+    g++ \
     gcc \
     gcc-mingw-w64 \
-    geoip-database \
+    gettext \
+    git \
     gnutls-bin \
-    graphviz \
     heimdal-dev \
-    ike-scan \
-    libgcrypt20-dev \
     libglib2.0-dev \
     libgnutls28-dev \
-    libgpgme11-dev \
     libgpgme-dev \
     libhiredis-dev \
-    libical2-dev \
+    libical-dev \
     libksba-dev \
+    libldap2-dev \
+    libldap2-dev \
     libmicrohttpd-dev \
-    libnet-snmp-perl \
     libpcap-dev \
     libpopt-dev \
+    libradcli-dev \
     libsnmp-dev \
     libssh-gcrypt-dev \
     libxml2-dev \
-    locales-all \
-    net-tools \
+    make \
+    nano \
     nmap \
-    nsis \
-    openssh-client \
     perl-base \
     pkg-config \
-    postgresql \
-    postgresql-contrib \
-    postgresql-server-dev-all \
     python3-defusedxml \
-    python3-dialog \
+    python3-dev \
     python3-lxml \
     python3-paramiko \
     python3-pip \
     python3-polib \
-    python3-psutil \
     python3-setuptools \
-    redis-server \
-    redis-tools \
+    redis \
     rsync \
-    smbclient \
     texlive-fonts-recommended \
     texlive-latex-extra \
     uuid-dev \
-    wapiti \
-    wget \
-    whiptail \
     xml-twig-tools \
-    xsltproc \
+    xmltoman \
+    zlib1g-dev \
     >/dev/null
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing node.js' && \
-    curl -sL https://deb.nodesource.com/setup_12.x|bash - >/dev/null && \
-    apt-get -y -qq install nodejs >/dev/null
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing yarn' && \
-    curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg|apt-key add - >/dev/null && \
-    echo 'deb https://dl.yarnpkg.com/debian/ stable main'|tee /etc/apt/sources.list.d/yarn.list >/dev/null && \
+RUN echo 'Installing yarn' && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg|apt-key add - >/dev/null && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main"|tee /etc/apt/sources.list.d/yarn.list >/dev/null && \
     apt-get -y -qq update >/dev/null && \
     apt-get -y -qq install yarn >/dev/null
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Creating build directory' && \
-    mkdir /build
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Greenbone Vulnerability Management libraries module' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/gvm-libs/archive/$gvm_libs_version.tar.gz && \
-    tar -zxf $gvm_libs_version.tar.gz --strip-components=1 && \
-    cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
-    make >/dev/null && \
-    make install >/dev/null && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing OpenVAS Scanner smb module' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/openvas-smb/archive/$openvas_smb_version.tar.gz && \
-    tar -zxf $openvas_smb_version.tar.gz --strip-components=1 && \
-    cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
-    make >/dev/null && \
-    make install >/dev/null && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Greenbone Vulnerability Manager (GVMD)' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/gvmd/archive/$gvmd_version.tar.gz && \
-    tar -zxf $gvmd_version.tar.gz --strip-components=1 && \
-    cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
-    make >/dev/null && \
-    make install >/dev/null && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Open Vulnerability Assessment System (OpenVAS) Scanner' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/openvas-scanner/archive/$openvas_scanner_version.tar.gz && \
-    tar -zxf $openvas_scanner_version.tar.gz --strip-components=1 && \
-    cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
-    make >/dev/null && \
-    make install >/dev/null && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Greenbone Security Assistant (GSA)' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/gsa/archive/$gsa_version.tar.gz && \
-    tar -zxf $gsa_version.tar.gz --strip-components=1 && \
-    cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && \
-    make >/dev/null && \
-    make install >/dev/null && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Greenbone Vulnerability Management Python Library' && \
-    pip3 -qq install python-gvm
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Open Scanner Protocol daemon (OSPd)' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/ospd/archive/$open_scanner_protocol_daemon_version.tar.gz && \
-    tar -zxf $open_scanner_protocol_daemon_version.tar.gz --strip-components=1 && \
-    python3 setup.py install && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing Open Scanner Protocol for OpenVAS' && \
-    cd /build && \
-    wget -q https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas_version.tar.gz && \
-    tar -zxf $ospd_openvas_version.tar.gz --strip-components=1 && \
-    python3 setup.py install && \
-    rm -rf *
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Installing GVM-Tools' && \
-    pip3 install gvm-tools
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Performing initial maintenance tasks' && \
-    echo '--> Creating redis run directory' && \
-    mkdir /run/redis && \
-    echo '--> Creating data folder' && \
-    mkdir /data && \
-    echo '--> Linking database folder' && \
-    mv /var/lib/postgresql/10/main /data/database && \
-    ln -s /data/database /var/lib/postgresql/10/main && \
-    chown postgres:postgres -R /var/lib/postgresql/10/main && \
-    chown postgres:postgres -R /data/database && \
-    echo '--> Linking local/var/lib' && \
-    mkdir /data/var-lib && \
-    cp -rf /usr/local/var/lib/* /data/var-lib && \
-    rm -rf /usr/local/var/lib && \
-    ln -s /data/var-lib /usr/local/var/lib && \
-    echo '--> Linking local/share' && \
-    mkdir /data/local-share && \
-    cp -rf /usr/local/share/* /data/local-share/ && \
-    rm -rf /usr/local/share && \
-    ln -s /data/local-share /usr/local/share
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Creating gvm user' && \
-    useradd --home-dir /usr/local/share/gvm gvm && \
-    if [ ! -d /usr/local/var/lib/gvm/cert-data ];then mkdir -p /usr/local/var/lib/gvm/cert-data;fi && \
-    chown gvm:gvm -R /usr/local/share/gvm && \
-    chown gvm:gvm -R /usr/local/share/openvas && \
-    chown gvm:gvm -R /usr/local/var/lib/gvm && \
-    chown gvm:gvm -R /usr/local/var/lib/openvas && \
-    chown gvm:gvm -R /usr/local/var/log/gvm && \
-    chown gvm:gvm -R /usr/local/var/run && \
-    chmod 770 -R /usr/local/var/lib/gvm && \
-    chmod 770 -R /usr/local/var/lib/openvas
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Creating database and dba' && \
-    /usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main start && \
-    su -c 'createuser -DRS gvm' postgres >/dev/null && \
-    su -c 'createdb -O gvm gvmd' postgres >/dev/null && \
+RUN echo 'Installing and configuring postgresql' && \
+    apt-get -y -qq --no-install-recommends install postgresql postgresql-contrib postgresql-server-dev-all >/dev/null && \
+    /usr/bin/pg_ctlcluster --skip-systemctl-redirect 12 main start && \
+    su -c 'createuser -DRS root' postgres >/dev/null && \
+    su -c 'createdb -O root gvmd' postgres >/dev/null && \
     su -c 'psql --dbname=gvmd --command="create role dba with superuser noinherit;"' postgres >/dev/null && \
-    su -c 'psql --dbname=gvmd --command="grant dba to gvm;"' postgres >/dev/null && \
+    su -c 'psql --dbname=gvmd --command="grant dba to root;"' postgres >/dev/null && \
     su -c 'psql --dbname=gvmd --command="create extension \"uuid-ossp\";"' postgres >/dev/null && \
-    /usr/bin/pg_ctlcluster --skip-systemctl-redirect 10 main stop
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Updating NVTs' && \
-    su -c 'greenbone-nvt-sync' gvm
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Updating SCAP data' && \
-    su -c 'greenbone-scapdata-sync' gvm
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Updating CERT data' && \
-    su -c 'greenbone-certdata-sync' gvm
-RUN echo '---------------------------------------------------------------------------------------------' && \
-    echo 'Ensuring all libraries are linked and adding ospd directory' && \
+    /usr/bin/pg_ctlcluster --skip-systemctl-redirect 12 main stop
+RUN echo 'Updating system path and creating build/install directories' && \
+    echo 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/gvm/bin:/opt/gvm/sbin:/opt/gvm/.local/bin"' > /etc/environment && \
+    echo '/opt/gvm/lib' > /etc/ld.so.conf.d/gvm.conf && \
+    mkdir /build && \
+    mkdir -p /opt/gvm/lib/python3.8/site-packages/
+RUN echo 'Installing gvm-libs' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/gvm-libs/archive/$gvm_libs_version.tar.gz --output $gvm_libs_version.tar.gz && \
+    tar -zxf $gvm_libs_version.tar.gz --strip-components=1 && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/gvm . >/dev/null && \
+    make >/dev/null && \
+    make install >/dev/null && \
+    rm -rf *
+RUN echo 'Installing openvas-smb' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/openvas-smb/archive/$openvas_smb_version.tar.gz --output $openvas_smb_version.tar.gz && \
+    tar -zxf $openvas_smb_version.tar.gz --strip-components=1 && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/gvm . >/dev/null && \
+    make >/dev/null && \
+    make install >/dev/null && \
+    rm -rf *
+RUN echo 'Installing gvmd' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/gvmd/archive/$gvmd_version.tar.gz --output $gvmd_version.tar.gz && \
+    tar -zxf $gvmd_version.tar.gz --strip-components=1 && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/gvm . >/dev/null && \
+    make >/dev/null && \
+    make install >/dev/null && \
+    rm -rf *
+RUN echo 'Installing openvas-scanner' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/openvas-scanner/archive/$openvas_scanner_version.tar.gz --output $openvas_scanner_version.tar.gz && \
+    tar -zxf $openvas_scanner_version.tar.gz --strip-components=1 && \
+    cp ./config/redis-openvas.conf /etc/redis/ && \
+    sed -i 's/set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${COVERAGE_FLAGS}")/set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror -Wno-error=deprecated-declarations")/' CMakeLists.txt && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/gvm . >/dev/null && \
+    make >/dev/null && \
+    make install >/dev/null && \
+    rm -rf *
+RUN echo 'Installing gsa' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/gsa/archive/$gsa_version.tar.gz --output $gsa_version.tar.gz && \
+    tar -zxf $gsa_version.tar.gz --strip-components=1 && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/gvm . >/dev/null && \
+    make >/dev/null && \
+    make install >/dev/null && \
+    rm -rf *
+RUN echo 'Installing ospd' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/ospd/archive/$ospd_version.tar.gz --output $ospd_version.tar.gz && \
+    tar -zxf $ospd_version.tar.gz --strip-components=1 && \
+    python3 setup.py install --prefix=/opt/gvm && \
+    rm -rf *
+RUN echo 'Installing ospd-openvas' && \
+    cd /build && \
+    curl -L --silent https://github.com/greenbone/ospd-openvas/archive/$ospd_openvas_version.tar.gz --output $ospd_openvas_version.tar.gz && \
+    tar -zxf $ospd_openvas_version.tar.gz --strip-components=1 && \
+    python3 setup.py install --prefix=/opt/gvm && \
+    rm -rf *
+#RUN echo 'Installing python-gvm' && \
+#    pip3 -qq install python-gvm
+#RUN echo 'Installing gvm-tools' && \
+#    pip3 -qq install gvm-tools
+RUN echo 'Reconfiguring redis' && \
     ldconfig && \
-    mkdir /var/run/ospd
+    mkdir /run/redis-openvas/ && \
+    chown redis:redis /etc/redis/redis-openvas.conf && \
+    echo 'db_address = /run/redis-openvas/redis.sock' > /opt/gvm/etc/openvas/openvas.conf
+RUN echo 'Syncing and importing feeds' && \
+    echo '--> Starting Redis' && \
+    redis-server /etc/redis/redis-openvas.conf && \
+    echo '--> Starting PostgreSQL' && \
+    /usr/bin/pg_ctlcluster --skip-systemctl-redirect 12 main start && \
+    echo '--> Starting OSPd' && \
+    ospd-openvas --pid-file /opt/gvm/var/run/ospd-openvas.pid --log-file /opt/gvm/var/log/gvm/ospd-openvas.log --lock-file-dir /opt/gvm/var/run -u /opt/gvm/var/run/ospd.sock && \
+	echo '--> Starting GVMd' && \
+    gvmd --osp-vt-update=/opt/gvm/var/run/ospd.sock && \
+	echo '--> Syncing NVTs' && \
+    sed -i 's/if \[ \"`id -u`\" -eq \"0\" \]/if [ 1 -eq 2 ]/' /opt/gvm/bin/greenbone-nvt-sync && \
+    greenbone-nvt-sync --curl >/dev/null || true && \
+    sleep 300 && \
+    greenbone-nvt-sync >/dev/null || true && \
+    sleep 300 && \
+    greenbone-nvt-sync >/dev/null || true && \
+    sleep 300 && \
+    echo '--> Syncing SCAP Data' && \
+    greenbone-scapdata-sync --curl >/dev/null || true && \
+    sleep 300 && \
+    greenbone-scapdata-sync >/dev/null || true && \
+    sleep 300 && \
+    greenbone-scapdata-sync >/dev/null || true && \
+    sleep 300 && \
+    echo '--> Syncing CERT Data' && \
+    greenbone-certdata-sync --curl >/dev/null || true && \
+    sleep 300 && \
+    greenbone-certdata-sync >/dev/null || true && \
+    sleep 300 && \
+    greenbone-certdata-sync >/dev/null || true && \
+    sleep 300 && \
+    echo '--> Loading NVTs into redis' && \
+    openvas --update-vt-info || true && \
+    echo '--> Stopping Redis' && \
+    redis-cli -s /run/redis-openvas/redis.sock shutdown && \
+    echo '--> Stopping PostgreSQL' && \
+    /usr/bin/pg_ctlcluster --skip-systemctl-redirect 12 main stop
 COPY start.sh /
 RUN chmod +x /start.sh
+RUN echo 'Setup complete!!!'
 CMD '/start.sh'
