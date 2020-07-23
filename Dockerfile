@@ -179,6 +179,8 @@ RUN echo 'Syncing and importing feeds' && \
     sleep 300 && \
     echo '--> Loading NVTs into redis' && \
     openvas --update-vt-info || true && \
+	echo '--> Modifying "OpenVAS Default" scanner-host' && \
+	gvmd --modify-scanner=08b69003-5fc2-4037-a479-93b440211c73 --scanner-host=/opt/gvm/var/run/ospd.sock && \
     echo '--> Stopping Redis' && \
     redis-cli -s /run/redis-openvas/redis.sock shutdown && \
     echo '--> Stopping PostgreSQL' && \
