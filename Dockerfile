@@ -184,6 +184,8 @@ RUN echo 'Syncing and importing feeds' && \
     openvas --update-vt-info || true && \
     echo '--> Modifying "OpenVAS Default" scanner-host' && \
     gvmd --modify-scanner=08b69003-5fc2-4037-a479-93b440211c73 --scanner-host=/opt/gvm/var/run/ospd.sock && \
+    echo '--> Removing 1000-row result export limit' && \
+    gvmd --modify-setting=76374a7a-0569-11e6-b6da-28d24461215b --value 0 && \
     echo '--> Stopping Redis' && \
     redis-cli -s /run/redis-openvas/redis.sock shutdown && \
     echo '--> Stopping PostgreSQL' && \
