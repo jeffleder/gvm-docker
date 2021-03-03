@@ -12,7 +12,7 @@ docker volume create openvas
 ```
 3. Run the container
 ```shell
-docker run --detach --publish 127.0.0.1:9392:9392 -e USERNAME="admin" -e PASSWORD="admin" --volume openvas:/opt/gvm --name openvas --restart unless-stopped jeffleder/gvm-docker
+docker run --detach --publish 127.0.0.1:9392:9392 -e USERNAME="admin" -e PASSWORD="admin" --volume openvas:/data --name openvas --restart unless-stopped jeffleder/gvm-docker
 ```
 # Deployment Notes
 * The `--detach` switch will run the container in a detached state
@@ -21,7 +21,7 @@ docker run --detach --publish 127.0.0.1:9392:9392 -e USERNAME="admin" -e PASSWOR
    * The `127.0.0.1` part of the switch will force GSA to only listen for localhost connections
 * The `-e USERNAME="admin"` switch allows you to specify a username to log into the GSAD web GUI with
 * The `-e PASSWORD="admin"` switch allows you to specify a password to log into the GSAD web GUI with
-* The `--volume` switch specifies the vilume to use for persistent data
+* The `--volume` switch specifies the volume to use for persistent data
 * The `--name` switch allows you to specify whatever freindly name you want for the container (this guide uses `openvas` throughout)
 * The `--restart unless-stopped` switch daemonizes the container (so it will restart on crash and/or system reboots)
 * The last `jeffleder/gvm-docker` item specifies the image to pull and run for the container
