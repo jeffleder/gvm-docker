@@ -31,8 +31,8 @@ chown _gvm:_gvm /run/gvm/
 chmod 775 /run/gvm/
 runuser -u _gvm -- gvmd --osp-vt-update=/run/ospd/ospd.sock
 ###############################################################################################
-mkdir -p /data/
-if [ ! -f '/data/created_gvm_user' ];then echo 'Creating admin user';runuser -u _gvm -- gvmd --create-user=${USERNAME} --password=${PASSWORD};touch /data/created_gvm_user;fi;
+#mkdir -p /data/
+#if [ ! -f '/data/created_gvm_user' ];then echo 'Creating admin user';runuser -u _gvm -- gvmd --create-user=${USERNAME} --password=${PASSWORD};touch /data/created_gvm_user;fi;
 ###############################################################################################
 echo 'Starting GSA' #service gsad start
 runuser -u _gvm -- gsad  --verbose --http-only --no-redirect --port=9392
