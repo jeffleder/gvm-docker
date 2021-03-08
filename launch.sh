@@ -27,7 +27,7 @@ echo 'Starting GSA' #service gsad start
 runuser -u _gvm -- gsad  --verbose --http-only --no-redirect --port=9392
 ###############################################################################################
 echo 'Creating admin user'
-runuser -u _gvm -- gvmd --create-user=${USERNAME} --password=${PASSWORD}
+runuser -u _gvm -- gvmd --create-user=${USERNAME} --password=${PASSWORD}  || true
 ###############################################################################################
 echo '+++++++++++++++++++++++++++++++++++++++++++'
 echo '+ Your GVM container is now ready to use! +'
