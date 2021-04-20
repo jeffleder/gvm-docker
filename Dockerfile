@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:sid
 RUN sed -i.bak 's/ main/ main contrib non-free/g' /etc/apt/sources.list
 RUN apt-get -y -qq update >/dev/null
 RUN apt-get -y -qq install net-tools >/dev/null
