@@ -1,16 +1,18 @@
 FROM debian:sid
 RUN sed -i.bak 's/ main/ main contrib non-free/g' /etc/apt/sources.list
 RUN apt-get -y -qq update >/dev/null
+RUN apt-get -y -qq dist-upgrade >/dev/null
+RUN apt-get -y -qq install apt-utils >/dev/null
 RUN apt-get -y -qq install net-tools >/dev/null
 RUN apt-get -y -qq install procps >/dev/null
 RUN apt-get -y -qq install nano >/dev/null
-RUN apt-get -y -qq install gvm >/dev/null
-RUN apt-get -y -qq install greenbone-security-assistant >/dev/null
 RUN apt-get -y -qq install wget >/dev/null
 RUN apt-get -y -qq install python >/dev/null
 RUN wget -q https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py
 RUN chmod 755 systemctl.py
 RUN cp systemctl.py /bin/systemctl
+RUN apt-get -y -qq install gvm >/dev/null
+RUN apt-get -y -qq install greenbone-security-assistant >/dev/null
 RUN install --directory --owner=redis --group=redis --mode=777 /run/redis-openvas/
 RUN touch /var/log/redis/redis-server-openvas.log && chmod 777 /var/log/redis/redis-server-openvas.log
 RUN runuser -u redis -- redis-server /etc/redis/redis-openvas.conf && gvm-setup
