@@ -1,7 +1,8 @@
 FROM debian:sid
 RUN sed -i.bak 's/ main/ main contrib non-free/g' /etc/apt/sources.list
+RUN echo 'debconf debconf/frontend select Noninteractive'|debconf-set-selections
 RUN apt-get -y -qq update >/dev/null
-RUN apt-get -y -qq install apt-utils dialog >/dev/null
+RUN apt-get -y -qq install apt-utils >/dev/null
 RUN apt-get -y -qq install net-tools >/dev/null
 RUN apt-get -y -qq install procps >/dev/null
 RUN apt-get -y -qq install nano >/dev/null
