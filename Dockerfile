@@ -1,4 +1,5 @@
 FROM debian:sid
+#INSTALL PACKAGES
 RUN sed -i.bak 's/ main/ main contrib non-free/g' /etc/apt/sources.list
 RUN echo 'debconf debconf/frontend select Noninteractive'|debconf-set-selections
 RUN apt-get -y -qq update >/dev/null
@@ -8,17 +9,24 @@ RUN apt-get -y -qq install procps >/dev/null
 RUN apt-get -y -qq install nano >/dev/null
 RUN apt-get -y -qq install gvm >/dev/null
 RUN apt-get -y -qq install greenbone-security-assistant >/dev/null
-
-RUN apt-get -y -qq install wget >/dev/null
-RUN apt-get -y -qq install python >/dev/null
-RUN wget -q https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl.py
-RUN chmod 755 systemctl.py && cp systemctl.py /bin/systemctl
-
-#RUN sed -i.bak 's/systemctl start postgresql/systemctl start postgresql && service postgresql start/g' /usr/bin/gvm-setup
-RUN sed -i.bak 's/systemctl start redis-server@openvas.service/#systemctl start redis-server@openvas.service/g' /usr/bin/gvm-feed-update
-RUN install --directory --owner=redis --group=redis --mode=777 /run/redis-openvas/
+#CONFIGURE REDIS
+RUN cp /etc/redis/redis.conf /etc/redis/redis.conf.bak && cp /etc/redis/redis-openvas.conf /etc/redis/redis.conf
+RUN mkdir --mode=777 /var/run/redis-openvas/
 RUN touch /var/log/redis/redis-server-openvas.log && chmod 777 /var/log/redis/redis-server-openvas.log
-RUN service postgresql start && runuser -u redis -- redis-server /etc/redis/redis-openvas.conf && gvm-setup && service postgresql stop
+#PREP AND RUN GVM-SETUP
+RUN sed -i.bak 's/gvm-feed-update/#gvm-feed-update/' /usr/bin/gvm-setup
+RUN sed -i.bak 's/systemctl start postgresql/#systemctl start postgresql/' /usr/bin/gvm-setup
+RUN sed -i.bak 's/if ! systemctl is-active --quiet postgresql; then/if false; then/' /usr/bin/gvm-setup
+RUN service postgresql start && service redis-server start \
+  && gvm-setup \
+  && service redis-server stop && service postgresql stop
+#PREP AND RUN GVM-FEED-UPDATE
+RUN sed -i.bak 's/systemctl start redis-server@openvas.service/#systemctl start redis-server@openvas.service/' /usr/bin/gvm-feed-update
+RUN service postgresql start && service redis-server start \
+  && gvm-feed-update \
+  && while [ "$(cat /var/log/gvm/gvmd.log|grep -c 'update_scap_end: Updating SCAP info succeeded')" != 1 ];do sleep 1;done; \
+  && service redis-server stop && service postgresql stop
+#ADD LAUNCH SCRIPT
 COPY launch.sh /
 RUN chmod +x /launch.sh
 CMD /launch.sh
