@@ -4,7 +4,7 @@ USERNAME=${USERNAME:-admin}
 PASSWORD=${PASSWORD:-admin}
 ###############################################################################################
 echo 'Starting Redis' #service redis-server@openvas start
-runuser -u redis -- redis-server /etc/redis/redis-openvas.conf
+service redis-server start
 while [ ! -S /run/redis-openvas/redis-server.sock ];do echo 'Waiting for redis-server socket';sleep 1;done;
 while [ "$(redis-cli -s /run/redis-openvas/redis-server.sock ping)" != 'PONG' ];do echo 'Waiting for redis to respond';sleep 1;done;
 ###############################################################################################
