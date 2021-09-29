@@ -18,7 +18,7 @@ RUN chmod 755 systemctl.py && cp systemctl.py /bin/systemctl
 RUN sed -i.bak 's/systemctl start redis-server@openvas.service/#systemctl start redis-server@openvas.service/g' /usr/bin/gvm-feed-update
 RUN install --directory --owner=redis --group=redis --mode=777 /run/redis-openvas/
 RUN touch /var/log/redis/redis-server-openvas.log && chmod 777 /var/log/redis/redis-server-openvas.log
-RUN service postgresql start && runuser -u redis -- redis-server /etc/redis/redis-openvas.conf && gvm-setup
+RUN service postgresql start && runuser -u redis -- redis-server /etc/redis/redis-openvas.conf && gvm-setup && service postgresql stop
 COPY launch.sh /
 RUN chmod +x /launch.sh
 CMD /launch.sh
