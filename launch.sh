@@ -24,7 +24,9 @@ install --directory --owner=_gvm --group=_gvm --mode=777 /run/gvm/
 runuser -u _gvm -- gvmd --osp-vt-update=/run/ospd/ospd.sock
 ###############################################################################################
 echo 'Starting GSA' #service gsad start
-runuser -u _gvm -- gsad  --verbose --http-only --no-redirect --port=9392
+echo 'LOL/JK - apparently gsad is out of the gsa library and does not install as part of gvm now?'
+echo 'skipping this for now - no gui until reviewed/fixed :('
+# runuser -u _gvm -- gsad  --verbose --http-only --no-redirect --port=9392
 ###############################################################################################
 echo 'Creating admin user'
 runuser -u _gvm -- gvmd --create-user=$USERNAME --password=$PASSWORD || true
