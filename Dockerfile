@@ -1,12 +1,14 @@
-FROM debian:sid
+FROM debian:sid-20220418-slim
 #INSTALL PACKAGES
-RUN sed -i.bak 's/ main/ main contrib non-free/g' /etc/apt/sources.list
+RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
+RUN echo 'Acquire::Check-Valid-Until false;'>/etc/apt/apt.conf.d/10-nocheckvalid
+RUN echo 'deb http://snapshot.debian.org/archive/debian/20220418T000000Z sid main contrib non-free' >/etc/apt/sources.list
 RUN echo 'debconf debconf/frontend select Noninteractive'|debconf-set-selections
 RUN apt-get -y -qq update >/dev/null
 RUN apt-get -y -qq install apt-utils >/dev/null
+RUN apt-get -y -qq install nano >/dev/null
 RUN apt-get -y -qq install net-tools >/dev/null
 RUN apt-get -y -qq install procps >/dev/null
-RUN apt-get -y -qq install nano >/dev/null
 RUN apt-get -y -qq install gvm >/dev/null
 RUN apt-get -y -qq install greenbone-security-assistant >/dev/null
 #CONFIGURE REDIS
