@@ -1,6 +1,5 @@
 FROM debian:sid-slim
 #INSTALL PACKAGES
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
 RUN echo 'Acquire::Check-Valid-Until false;'>/etc/apt/apt.conf.d/10-nocheckvalid
 RUN echo 'deb http://snapshot.debian.org/archive/debian/20220418T000000Z sid main contrib non-free' >/etc/apt/sources.list
 RUN echo 'debconf debconf/frontend select Noninteractive'|debconf-set-selections
