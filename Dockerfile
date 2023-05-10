@@ -7,7 +7,7 @@ RUN apt-get -y -qq install nano >/dev/null
 RUN apt-get -y -qq install net-tools >/dev/null
 RUN apt-get -y -qq install procps >/dev/null
 RUN apt-get -y -qq install gvm >/dev/null
-RUN apt-get -y -qq install greenbone-security-assistant >/dev/null
+RUN apt-get -y -qq install gsad >/dev/null
 #CONFIGURE REDIS
 RUN cp /etc/redis/redis.conf /etc/redis/redis.conf.bak && cp /etc/redis/redis-openvas.conf /etc/redis/redis.conf
 RUN mkdir --mode=777 /var/run/redis-openvas/
