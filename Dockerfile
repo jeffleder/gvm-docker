@@ -1,4 +1,4 @@
-FROM debian:sid-20220418-slim
+FROM debian:sid-slim
 #INSTALL PACKAGES
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.bak
 RUN echo 'Acquire::Check-Valid-Until false;'>/etc/apt/apt.conf.d/10-nocheckvalid
